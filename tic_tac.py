@@ -13,11 +13,9 @@ def set_tile(row, column):
     board[row][column]["text"] = curr_player
 
     if curr_player == playerX:
-        # Убираем явные размеры, чтобы картинка не конфликтовала,
-        # но Frame удержит размер кнопки
-        board[row][column].config(image=img_X, bg=color_gray)
+        board[row][column].config(image=img_X, bg=color_gray) ## Add image of red canes to cell
     else:
-        board[row][column].config(image=img_O, bg=color_gray)
+        board[row][column].config(image=img_O, bg=color_gray) ## Add image of green ornament to cell
 
     curr_player = playerO if curr_player == playerX else playerX
     label["text"] = curr_player + "'s turn"
@@ -32,7 +30,7 @@ def check_winner():
     for row in range(3):
         if (board[row][0]["text"] == board[row][1]["text"] == board[row][2]["text"] and 
             board[row][0]["text"] != ""):
-            highlight_winner(row, 0, row, 1, row, 2)
+            highlight_winner(row, 0, row, 1, row, 2) ## highlight who is winner
             label.config(text=board[row][0]["text"] + " wins!", fg=color_yellow)
             game_over = True
             return
@@ -41,7 +39,7 @@ def check_winner():
     for col in range(3):
         if (board[0][col]["text"] == board[1][col]["text"] == board[2][col]["text"] and 
             board[0][col]["text"] != ""):
-            highlight_winner(0, col, 1, col, 2, col)
+            highlight_winner(0, col, 1, col, 2, col) ## highlight who is winner
             label.config(text=board[0][col]["text"] + " wins!", fg=color_yellow)
             game_over = True
             return
@@ -49,27 +47,29 @@ def check_winner():
     # Check diagonals
     if (board[0][0]["text"] == board[1][1]["text"] == board[2][2]["text"] and 
         board[0][0]["text"] != ""):
-        highlight_winner(0, 0, 1, 1, 2, 2)
+        highlight_winner(0, 0, 1, 1, 2, 2) ## highlight who is winner
         label.config(text=board[0][0]["text"] + " wins!", fg=color_yellow)
         game_over = True
         return
 
     if (board[0][2]["text"] == board[1][1]["text"] == board[2][0]["text"] and 
         board[0][2]["text"] != ""):
-        highlight_winner(0, 2, 1, 1, 2, 0)
+        highlight_winner(0, 2, 1, 1, 2, 0) ## highlight who is winner
         label.config(text=board[0][2]["text"] + " wins!", fg=color_yellow)
         game_over = True
         return
-
+    
+    # Check for Tie
     if turns == 9:
         game_over = True
         label.config(text="It's a Tie!", fg=color_yellow)
 
-def highlight_winner(r1, c1, r2, c2, r3, c3):
+def highlight_winner(r1, c1, r2, c2, r3, c3): ## created function that highlights winners cells
     board[r1][c1].config(bg=color_light_gray)
     board[r2][c2].config(bg=color_light_gray)
     board[r3][c3].config(bg=color_light_gray)
 
+# Reset everything for new game
 def new_game():
     global turns, game_over, curr_player
     
@@ -83,7 +83,7 @@ def new_game():
         for col in range(3):
             board[row][col].config(
                 text="", 
-                image="", 
+                image="", ## reset image that was added
                 bg=color_gray,
                 relief="raised"
             )
@@ -103,14 +103,12 @@ color_light_gray = "#646464"
 
 # Window setup
 window = tk.Tk()
-window.title("Tic Tac Toe")
+window.title("Christmas Tic Tac Toe") ## New game title
 window.configure(bg=color_gray)
-
-# --- ИЗМЕНЕНИЕ 1: Уменьшили минимальный размер окна (на ~30%) ---
 window.resizable(True, True)
 window.minsize(350, 400) 
 
-# Load images with error handling
+## Load images with error handling
 try:
     img_X = tk.PhotoImage(file="x.png")
     img_O = tk.PhotoImage(file="o.png")
@@ -118,7 +116,6 @@ except:
     img_X = None
     img_O = None
 
-# --- ИЗМЕНЕНИЕ 2: Уменьшили шрифт ---
 custom_font = font.Font(family="Consolas", size=18, weight="bold")
 
 # Main frame
@@ -128,8 +125,8 @@ main_frame.pack(expand=True, fill="both")
 # Title label
 title_label = tk.Label(
     main_frame,
-    text="TIC TAC TOE",
-    font=("Consolas", 22, "bold"), # Уменьшили шрифт
+    text="CHRISTMAS TIC TAC TOE",
+    font=("Consolas", 22, "bold"),
     bg=color_gray,
     fg="white",
     pady=5
@@ -140,7 +137,7 @@ title_label.pack()
 label = tk.Label(
     main_frame,
     text=curr_player + "'s turn",
-    font=("Consolas", 14), # Уменьшили шрифт
+    font=("Consolas", 14),
     bg=color_gray,
     fg="white",
     pady=5
@@ -154,26 +151,21 @@ board_frame.pack(expand=True)
 # Create board buttons
 board = []
 
-# --- ИЗМЕНЕНИЕ 3: Фиксированный размер клетки в пикселях ---
-# Мы не задаем размер в самой кнопке, а создаем Frame-обертку
-TILE_SIZE = 90 # Размер клетки в пикселях (было эквивалентно ~120)
+TILE_SIZE = 90
 
 for row in range(3):
     board_row = []
     for col in range(3):
-        # Создаем контейнер для кнопки с фиксированным размером
         cell_frame = tk.Frame(board_frame, width=TILE_SIZE, height=TILE_SIZE)
         cell_frame.grid(row=row, column=col, padx=3, pady=3)
         
-        # grid_propagate(False) запрещает контейнеру сжиматься под размер кнопки
         cell_frame.grid_propagate(False)
         cell_frame.pack_propagate(False)
 
         btn = tk.Button(
-            cell_frame, # Кнопка теперь внутри cell_frame
+            cell_frame,
             text="",
             font=custom_font,
-            # Убрали width и height из кнопки! Она заполнит cell_frame.
             bg=color_gray,
             fg=color_blue,
             activebackground=color_light_gray,
@@ -181,7 +173,6 @@ for row in range(3):
             borderwidth=3,
             command=lambda r=row, c=col: set_tile(r, c)
         )
-        # Кнопка растягивается на весь контейнер
         btn.pack(fill="both", expand=True)
         
         board_row.append(btn)
@@ -196,7 +187,7 @@ control_frame.pack(fill="x")
 restart_btn = tk.Button(
     control_frame,
     text="NEW GAME",
-    font=("Consolas", 12, "bold"), # Уменьшили шрифт
+    font=("Consolas", 12, "bold"),
     bg=color_blue,
     fg="white",
     activebackground=color_light_gray,
@@ -209,11 +200,11 @@ restart_btn = tk.Button(
 )
 restart_btn.pack()
 
-# Exit button
+## Exit button for exit
 exit_btn = tk.Button(
     control_frame,
     text="EXIT",
-    font=("Consolas", 11), # Уменьшили шрифт
+    font=("Consolas", 11),
     bg=color_gray,
     fg="white",
     activebackground=color_light_gray,
@@ -226,7 +217,7 @@ exit_btn = tk.Button(
 )
 exit_btn.pack(pady=(10, 0))
 
-# Status label
+## Credit for framework that was used
 status_label = tk.Label(
     control_frame,
     text="Made with Tkinter",
